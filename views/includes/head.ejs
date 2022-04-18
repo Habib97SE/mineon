@@ -1,0 +1,26 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content=<%=head.metaDescription %>>
+    <meta name="keywords" content=<%=head.metaKeywords %>>
+    <!-- Fav Icon  -->
+    <link rel="shortcut icon" href=<%=head.favIcon %>>
+    <!-- Site Title  -->
+    <title>
+        <%= head.title %>
+    </title>
+    <!-- Vendor Bundle CSS -->
+    <link rel="stylesheet" href="assets/css/vendor.bundle.css">
+    <!-- Custom styles for this template -->
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/theme-blue.css" rel="stylesheet">
+    <% head.cssFiles.forEach(function(cssFile){ %>
+        <link href=<%=cssFile %> rel="stylesheet">
+        <% }); %>
+            <% head.jsFiles.forEach(function(jsFile){ %>
+                <script src=<%=jsFile %>
+                    >
+                </script>
+                <% }); %>
+
+</head>
