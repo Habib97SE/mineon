@@ -14,10 +14,9 @@
     "cookie-parser": "^1.4.6",
     "ejs": "^3.1.6",
     "express": "^4.17.3",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.16",
     "pug": "^3.0.2"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Habib97SE/mineon.git"
