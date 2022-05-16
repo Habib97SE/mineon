@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 //const MongoClient = require("mongodb").MongoClient;
 const frontRoutes = require("./router/front");
 
+const PORT = 8000;
+
 // const DB_URL = "mongodb://127.0.0.1:27017";
 // const DB_NAME = "chckout";
 const app = express();
@@ -28,5 +30,5 @@ app.set("view engine", "ejs");
 
 // All routes related to front site.
 app.use(frontRoutes);
-
-app.listen(8000);
+app.listen(PORT);
+console.log("Click here to run the app: localhost:" + PORT);

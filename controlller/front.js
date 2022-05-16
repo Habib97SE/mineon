@@ -2,16 +2,27 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 
-const primaryNavItems = [["Home", "/"], ["How it works", "#"], ["Blog", "/blog"], ["FAQ", "/faq"], ["About us", "about-us"], ["Contact us", "/contact-us"]];
-const secondaryNavItems = [["Help", "/faq"], ["Support", "/faq"], ["Login", "/register#tab2"], ["Register", "/register"]]
+const d = new Date();
+const YEAR = d.getFullYear();
 
+const primaryNavItems = [
+    ["Home", "/"],
+    ["How it works", "#"],
+    ["Blog", "/blog"],
+    ["FAQ", "/faq"],
+    ["About us", "about-us"],
+    ["Contact us", "/contact-us"],
+];
+const secondaryNavItems = [
+    ["Help", "/faq"],
+    ["Support", "/faq"],
+    ["Login", "/register#tab2"],
+    ["Register", "/register"],
+];
 
-/**
- * Data needed for head page
- */
 const headData = {
-    metaDescription: "This is the description",
-    metaKeywords: "This is the keywords",
+    metaDescription: "Mine Cryptocurrency with over 10 different mining locations in the world.",
+    metaKeywords: "bitcoin, mining bitcoin, mine on cloud, cloud mining, bitcoin cloud mining",
     favIcon: "images/favicon.png",
     title: "Home",
     cssFiles: [
@@ -22,18 +33,26 @@ const headData = {
     jsFiles: [],
 };
 
-exports.getHomePage = function (req, res, next) {
+exports.getHomePage = function(req, res, next) {
     res.render("index", {
         head: headData,
         nav: primaryNavItems,
         secondaryNav: secondaryNavItems,
+        footer: {
+            currentYear: YEAR,
+        },
     });
 };
 
-exports.getRegisterPage = function (req, res, next) {
+exports.getRegisterPage = function(req, res, next) {
     res.render("register", {
         head: headData,
         nav: primaryNavItems,
         secondaryNav: secondaryNavItems,
-    })
-}
+        footer: {
+            currentYear: YEAR,
+        },
+    });
+};
+
+exports.postRegisterPage = function(req, res, next) {};

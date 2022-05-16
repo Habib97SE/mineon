@@ -7,7 +7,10 @@ const router = express.Router();
 // GET homepage
 router.get("/", frontController.getHomePage);
 
-// GET Register
+// GET register page
 router.get("/register", frontController.getRegisterPage);
+
+// POST register page
+router.post("/register", frontController.postRegisterPage);
 
 module.exports = router;

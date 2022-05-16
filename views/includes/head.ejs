@@ -9,11 +9,6 @@
     <title>
         <%= head.title %>
     </title>
-    <!-- Vendor Bundle CSS -->
-    <link rel="stylesheet" href="assets/css/vendor.bundle.css">
-    <!-- Custom styles for this template -->
-    <link href="assets/css/style.css" rel="stylesheet">
-    <link href="assets/css/theme-blue.css" rel="stylesheet">
     <% head.cssFiles.forEach(function(cssFile){ %>
         <link href=<%=cssFile %> rel="stylesheet">
         <% }); %>
