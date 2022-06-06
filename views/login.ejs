@@ -1,76 +1,49 @@
-<div class="tab-pane fade in active" id="tab1">
-<<<<<<< HEAD
-              <div class="row">
-                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-                  <h3 class="heading-lead center">Login Your Account</h3>
-                  <form class="form-signup" action="action.php" method="post">
-                    <div class="form-results"></div>
-                    <div class="form-group">
-                      <div class="form-field form-m-bttm">
-                        <input
-                          name="signup-email"
-                          type="email"
-                          placeholder="Email *"
-                          class="form-control required email"
-                          aria-required="true"
-                        />
-                      </div>
+<!DOCTYPE html>
+<html lang="en" ng-app="mineon">
+
+<%- include('includes/head.ejs') -%>
+
+    <body>
+
+        <!-- Header -->
+
+        <%- include('includes/header.ejs') -%>
+
+            <!-- Section -->
+            <div class="tab-pane fade in active" id="tab1">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                        <h3 class="heading-lead center">Login Your Account</h3>
+                        <form class="form-signup" action="#" method="post">
+                            <div class="form-results"></div>
+                            <div class="form-group">
+                                <div class="form-field form-m-bttm">
+                                    <input name="loginEmail" type="email" placeholder="Email *" class="form-control required email" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-field">
+                                    <input name="loginPasskey" type="password" placeholder="Password *" class="form-control required" aria-required="true">
+                                </div>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <div class="form-field">
+                                    <input type="checkbox" name="rememberMe"> <span> Remember me?</span>
+                                </div>
+                            </div>
+                            <input type="submit" id="loginSubmit" class="btn btn-alt" value="Log In" />
+                            <span class="gaps"></span>
+                            <p class="small">Not registered? <a class="switch-tab" href="/register">Register
+                                    here</a></p>
+                        </form>
                     </div>
-                    <div class="form-group">
-                      <div class="form-field">
-                        <input
-                          name="signup-passkey"
-                          type="password"
-                          placeholder="Password *"
-                          class="form-control required"
-                          aria-required="true"
-                        />
-                      </div>
-                    </div>
-                    <button type="submit" class="btn btn-alt">Log In</button>
-                    <span class="gaps"></span>
-                    <p class="small">
-                      Not registered?
-                      <a
-                        class="switch-tab"
-                        data-tabnav="loginreg-form"
-                        href="#tab2"
-                        data-toggle="tab"
-                        >Register here</a
-                      >
-                    </p>
-                  </form>
                 </div>
-              </div>
             </div>
-=======
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-            <h3 class="heading-lead center">Login Your Account</h3>
-            <form class="form-signup" action="action.php" method="post">
-                <div class="form-results"></div>
-                <div class="form-group">
-                    <div class="form-field form-m-bttm">
-                        <input name="signup-email" type="email" placeholder="Email *" class="form-control required email" aria-required="true">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="form-field">
-                        <input name="signup-passkey" type="password" placeholder="Password *" class="form-control required" aria-required="true">
-                    </div>
-                </div>
-                <br>
-                <div class="form-group">
-                    <div class="form-field">
-                        <input type="checkbox" name="remember-me"> <span> Remember me?</span>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-alt">Log In</button>
-                <span class="gaps"></span>
-                <p class="small">Not registered? <a class="switch-tab" data-tabnav="loginreg-form" href="#tab2" data-toggle="tab">Register
-                        here</a></p>
-            </form>
-        </div>
-    </div>
-</div>
->>>>>>> Habib_Dev
+            <div class="my-4"></div>
+            <!-- End Section -->
+
+            <%- include('includes/footer.ejs') -%>
+    </body>
+
+</html>

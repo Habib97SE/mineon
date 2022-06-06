@@ -368,6 +368,18 @@
  */
 
 /**
+ *
+ * @param {string} emailAddress : Check email address if it is valid or not.
+ * @returns : true if valid, false if not.
+ */
+function isEmailAddressValid(emailAddress) {
+    var pattern = new RegExp(
+        /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i
+    );
+    return pattern.test(emailAddress);
+}
+
+/**
  * Create a new tag and return it
  * @param {string} text : the text of the tag
  * @param {string} id  : the id of the tag
@@ -421,8 +433,7 @@ signupName.addEventListener("focusout", function(e) {
 const signupEmail = document.querySelector("input[name='signupEmail']");
 
 signupEmail.addEventListener("focusout", function(e) {
-    var pattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (signupEmail.value.match(pattern)) {
+    if (isEmailAddressValid(signupEmail.value)) {
         signupEmail.style.borderColor = "green";
         if (checkNextTag("LABEL", signupEmail)) {
             signupEmail.parentNode.removeChild(signupEmail.nextSibling);
@@ -575,3 +586,67 @@ function showPassword() {
         document.getElementById("signupShowPassword").innerHTML = "Show";
     }
 }
+/**
+ * End of registration form.
+ */
+
+/**
+ * Login form.
+ */
+let loginError = false;
+const loginEmail = document.querySelector("input[name='loginEmail']");
+loginEmail.addEventListener("focusout", function(e) {
+    if (isEmailAddressValid(loginEmail.value)) {
+        loginEmail.style.borderColor = "green";
+        if (checkNextTag("LABEL", loginEmail)) {
+            loginEmail.parentNode.removeChild(loginEmail.nextSibling);
+        }
+    } else {
+        if (!checkNextTag("LABEL", loginEmail)) {
+            loginEmail.style.borderColor = "red";
+            const label = createLabel("Please enter your email.", "login-email");
+            loginEmail.parentNode.insertBefore(label, loginEmail.nextSibling);
+        }
+        loginError = true;
+    }
+}); // end loginEmail.addEventListener
+
+const loginPasskey = document.querySelector("input[name='loginPasskey']");
+loginPasskey.addEventListener("focusout", function(e) {
+    if (loginPasskey.value.length >= 3) {
+        var pattern =
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+        if (loginPasskey.value.match(pattern)) {
+            loginPasskey.style.borderColor = "green";
+            if (checkNextTag("LABEL", loginPasskey)) {
+                loginPasskey.parentNode.removeChild(loginPasskey.nextSibling);
+            }
+        } else {
+            loginPasskey.style.borderColor = "red";
+            const label = createLabel("The password is not valid.", "login-passkey");
+            if (!checkNextTag("LABEL", loginPasskey)) {
+                loginPasskey.parentNode.insertBefore(label, loginPasskey.nextSibling);
+            }
+            loginError = true;
+        }
+    }
+}); // end loginPasskey.addEventListener
+
+const loginSubmit = document.querySelector("input[id='loginSubmit']");
+loginSubmit.addEventListener("click", function(e) {
+    if (!loginError) {
+        if (loginEmail.value >= 3 && loginPasskey.value >= 3) {
+            const rememberMe = document.querySelector("input[name='rememberMe']");
+            loginForm.submit();
+        }
+    } else {
+        e.preventDefault();
+        const label = createLabel(
+            "Please fill out all fields correctly.",
+            "login-submit"
+        );
+        if (!checkNextTag("LABEL", loginSubmit)) {
+            loginSubmit.parentNode.insertBefore(label, loginSubmit.nextSibling);
+        }
+    }
+}); // end loginSubmit.addEventListener

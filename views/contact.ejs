@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="mineon">
+
+<%- include('includes/head.ejs') -%>
+
+    <body>
+
+        <!-- Header -->
+
+        <%- include('includes/header.ejs') -%>
+
+
+            <!-- Section -->
+            <div class="section section-pad">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 res-m-bttm">
+                            <div class="contact-information">
+                                <h4>Contact Information</h4>
+                                <div class="row">
+                                    <div class="col-sm-4 res-m-bttm">
+                                        <div class="contact-entry">
+                                            <h6><span>MineOn</span>.Cloud</h6>
+                                            <p>610 T R S Apartments<br />The Green, Southall, England, UB2 4FF</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 res-m-bttm">
+                                        <div class="contact-entry">
+                                            <h6>office hours</h6>
+                                            <p>monday - friday<br />8:30am - 5:00pm (UTC +01:00)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="contact-form">
+                                <p>Complete and submit the form below</p>
+                                <form id="contact-form" class="form-message" action="form/contact.php" method="post">
+                                    <div class="form-results"></div>
+                                    <div class="form-group row">
+                                        <div class="form-field col-sm-6 form-m-bttm">
+                                            <input name="contact-name" type="text" placeholder="Full Name *" class="form-control required">
+                                        </div>
+                                        <div class="form-field col-sm-6">
+                                            <input name="contact-email" type="email" placeholder="Email *" class="form-control required email">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="form-field col-sm-6 form-m-bttm">
+                                            <input name="contact-phone" type="text" placeholder="Phone Number *" class="form-control required">
+                                        </div>
+                                        <div class="form-field col-sm-6">
+                                            <input name="contact-subject" type="text" placeholder="Subject *" class="form-control required">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="form-field col-md-12">
+                                            <textarea name="contact-message" placeholder="Messages *" class="txtarea form-control required"></textarea>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="hidden" name="form-anti-honeypot" value="">
+                                    <button type="submit" class="btn btn-alt">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- .col  -->
+                        <div class="col-md-4">
+                            <div id="gMap" class="google-map">
+
+                                <div class="mapouter">
+                                    <div class="gmap_canvas"><iframe width="600" height="500" id="gmap_canvas" src="https://maps.google.com/maps?q=610%20T%20R%20S%20Apartments,%20The%20Green,%20Southall,%20England,%20UB2%204FF&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0"
+                                            scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                                        <a href="https://123movies-to.org"></a><br>
+                                        <style>
+                                            .mapouter {
+                                                position: relative;
+                                                text-align: right;
+                                                height: 500px;
+                                                width: 600px;
+                                            }
+                                        </style><a href="https://www.embedgooglemap.net">maps for websites</a>
+                                        <style>
+                                            .gmap_canvas {
+                                                overflow: hidden;
+                                                background: none !important;
+                                                height: 500px;
+                                                width: 400px;
+                                            }
+                                        </style>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <a href="https://www.google.com/maps?ll=51.51553,-0.256798&z=13&t=m&hl=en-US&gl=US&mapclient=embed&q=610+T+R+S+Apartments,+The+Green,+Southall,+England,+UB2+4FF" class="map-link">View on google map <span class="fa fa-caret-right"></span></a>
+                        </div>
+                        <!-- .col  -->
+                    </div>
+                </div>
+            </div>
+            <!-- End Section -->
+
+
+            <%- include('includes/footer.ejs') -%>
+    </body>
+
+</html>
