@@ -310,47 +310,6 @@
         });
     }
 
-    // FORMS
-    var quoteForm = $("#contact-form");
-    if (quoteForm.length > 0) {
-        if (!$().validate || !$().ajaxSubmit) {
-            console.log("quoteForm: jQuery Form or Form Validate not Defined.");
-            return true;
-        }
-        // Quote Form - home page
-        if (quoteForm.length > 0) {
-            var selectRec = quoteForm.find("select.required"),
-                qf_results = quoteForm.find(".form-results");
-            quoteForm.validate({
-                invalidHandler: function() {
-                    qf_results.slideUp(400);
-                },
-                submitHandler: function(form) {
-                    qf_results.slideUp(400);
-                    $(form).ajaxSubmit({
-                        target: qf_results,
-                        dataType: "json",
-                        success: function(data) {
-                            var type =
-                                data.result === "error" ? "alert-danger" : "alert-success";
-                            qf_results
-                                .removeClass("alert-danger alert-success")
-                                .addClass("alert " + type)
-                                .html(data.message)
-                                .slideDown(400);
-                            if (data.result !== "error") {
-                                $(form).clearForm();
-                            }
-                        },
-                    });
-                },
-            });
-            selectRec.on("change", function() {
-                $(this).valid();
-            });
-        }
-    }
-
     // Preloader
     var $preload = $("#preloader");
     if ($preload.length > 0) {

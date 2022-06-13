@@ -34,27 +34,27 @@
                             </div>
                             <div class="contact-form">
                                 <p>Complete and submit the form below</p>
-                                <form id="contact-form" class="form-message" action="form/contact.php" method="post">
+                                <form id="contact-form" class="form-message" action="/contact" method="post">
                                     <div class="form-results"></div>
                                     <div class="form-group row">
                                         <div class="form-field col-sm-6 form-m-bttm">
-                                            <input name="contact-name" type="text" placeholder="Full Name *" class="form-control required">
+                                            <input name="contactName" type="text" placeholder="Full Name *" value="<%= name %>" class=" form-control required">
                                         </div>
-                                        <div class="form-field col-sm-6">
-                                            <input name="contact-email" type="email" placeholder="Email *" class="form-control required email">
+                                        <div class=" form-field col-sm-6 ">
+                                            <input name="contactEmail" type=" email " placeholder=" Email * " value=" <%= emailAddress %> " class="form-control required ">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <div class="form-field col-sm-6 form-m-bttm">
-                                            <input name="contact-phone" type="text" placeholder="Phone Number *" class="form-control required">
+                                            <input name="contactPhone" type="text" placeholder="Phone Number *" value="<%= telno %>" class="form-control required">
                                         </div>
                                         <div class="form-field col-sm-6">
-                                            <input name="contact-subject" type="text" placeholder="Subject *" class="form-control required">
+                                            <input name="contactSubject" type="text" placeholder="Subject *" class="form-control required">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <div class="form-field col-md-12">
-                                            <textarea name="contact-message" placeholder="Messages *" class="txtarea form-control required"></textarea>
+                                            <textarea name="contactMessage" placeholder="Messages *" class="txtarea form-control required"></textarea>
                                         </div>
                                     </div>
                                     <input type="text" class="hidden" name="form-anti-honeypot" value="">

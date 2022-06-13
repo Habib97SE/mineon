@@ -1,28 +1,29 @@
 {
-  "name": "mineon",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "\"# mineon\"",
-  "dependencies": {
-    "cookie-parser": "^1.4.6",
-    "ejs": "^3.1.6",
-    "express": "^4.17.3",
-    "nodemon": "^2.0.16",
-    "pug": "^3.0.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Habib97SE/mineon.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Habib97SE/mineon/issues"
-  },
-  "homepage": "https://github.com/Habib97SE/mineon#readme"
+    "name": "mineon",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "\"# mineon\"",
+    "dependencies": {
+        "cookie-parser": "^1.4.6",
+        "ejs": "^3.1.8",
+        "express": "^4.17.3",
+        "mongodb": "^4.7.0",
+        "nodemon": "^2.0.16",
+        "pug": "^3.0.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Habib97SE/mineon.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Habib97SE/mineon/issues"
+    },
+    "homepage": "https://github.com/Habib97SE/mineon#readme"
 }
