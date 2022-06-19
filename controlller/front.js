@@ -1,28 +1,22 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const d = new Date();
-const YEAR = d.getFullYear();
-const { MongoClient } = require("mongodb");
+
+const YEAR = new Date().getFullYear();
+
 const { networkInterfaces } = require("os");
+const bcryptjs = require("bcryptjs");
+const e = require("express");
+const Email = require("../model/Email");
+const Form = require("../model/Form");
+const Database = require("../model/Database");
 
-/**
- * Connect to DB
- */
-const uri =
-    "mongodb+srv://habib:Blomma93@mineoncloudtest.klaol.mongodb.net/?retryWrites=true&w=majority";
+const Clients = "Clients";
+const Contacts = "Contacts";
 
-async function connectToCluster(uri) {
-    let mongoClient;
-    try {
-        mongoClient = new MongoClient(uri);
-        await mongoClient.connect();
+let db = new Database();
 
-        return mongoClient;
-    } catch (error) {
-        console.error("Connection to MongoDB Atlas failed!", error);
-        process.exit();
-    }
+async function encryptPassword(password) {
+    const salt = await bcryptjs.genSalt(12);
+    return bcryptjs.hash(password, salt);
 }
 
 const primaryNavItems = [
@@ -52,6 +46,19 @@ const headData = {
     jsFiles: [],
 };
 
+function getUsersIP() {
+    var ifaces = networkInterfaces();
+    var ip = "";
+    for (var dev in ifaces) {
+        ifaces[dev].forEach(function(details) {
+            if (details.family === "IPv4" && details.address !== "::1") {
+                ip = details.address;
+            }
+        });
+    }
+    return ip;
+}
+
 function changeMenuItems(req) {
     // Check if the user is logged in
     if (req.cookies.userLoggedIn) {
@@ -69,19 +76,7 @@ function changeMenuItems(req) {
 }
 
 exports.getHomePage = function(req, res, next) {
-    // Check if the user is logged in
-    if (req.cookies.userLoggedIn) {
-        for (let i = 0; i < secondaryNavItems.length; i++) {
-            if (secondaryNavItems[i][0] === "Login") {
-                secondaryNavItems[i][0] = req.cookies.userLoggedIn.name;
-                secondaryNavItems[i][1] = "/account";
-            }
-            if (secondaryNavItems[i][0] === "Register") {
-                secondaryNavItems[i][0] = "Logout";
-                secondaryNavItems[i][1] = "/logout";
-            }
-        }
-    }
+    changeMenuItems(req);
     res.render("index", {
         title: "Home",
         head: headData,
@@ -94,6 +89,10 @@ exports.getHomePage = function(req, res, next) {
 };
 
 exports.getRegisterPage = function(req, res, next) {
+    if (req.cookies.userLoggedIn) {
+        res.redirect("/");
+    }
+    changeMenuItems(req);
     res.render("register", {
         title: "Register",
         head: headData,
@@ -105,79 +104,27 @@ exports.getRegisterPage = function(req, res, next) {
     });
 };
 
-function getUsersIP() {
-    var ifaces = networkInterfaces();
-    var ip = "";
-    for (var dev in ifaces) {
-        ifaces[dev].forEach(function(details) {
-            if (details.family === "IPv4" && details.address !== "::1") {
-                ip = details.address;
-            }
-        });
+exports.postRegisterPage = async function(req, res, next) {
+    let newForm = new Form(
+        req.body.name,
+        req.body.email,
+        req.body.telno,
+        req.body.password,
+        req.body.confirmPassword
+    );
+    if (!newForm.isFormValid()) {
+        res.redirect("/register");
     }
-    return ip;
-}
 
-async function checkIfUserExists(emailAddress) {
-    let mongoClient;
-    try {
-        mongoClient = await connectToCluster(uri);
-        const db = mongoClient.db("mineOn");
-        const collection = db.collection("Clients");
-        console.log("Connected successfully to the database mineOn");
-        // Get the documents collection where the name is equal to data.name
-        const result = await collection.findOne({ email: emailAddress });
-        // If the result is not null, then the user exists, set cookie and redirect to homepage
-        if (result !== null) {
-            console.log("Email already exists");
-            return true;
-        } else {
-            console.log("Email does not exist");
-            return false;
-        }
-    } catch (error) {
-        console.error("Connection to MongoDB Atlas failed!", error);
-        process.exit();
-    } finally {
-        await mongoClient.close();
-    }
-}
-
-async function createNewUser(data) {
-    let mongoClient;
-    try {
-        mongoClient = await connectToCluster(uri);
-        const db = mongoClient.db("mineOn");
-        const collection = db.collection("Clients");
-        console.log("Connected successfully to the database mineOn");
-        // Get the documents collection where the name is equal to data.name
-        const result = await collection.insertOne(data);
-        // If the result is not null, then the user exists, set cookie and redirect to homepage
-        if (result !== null) {
-            // Create a cookie with the user's name
-            console.log("User created");
-            return true;
-        } else {
-            console.log("User not created");
-            return false;
-        }
-    } catch (error) {
-        console.error("Connection to MongoDB Atlas failed!", error);
-        process.exit();
-    } finally {
-        await mongoClient.close();
-    }
-}
-
-exports.postRegisterPage = function(req, res, next) {
     if (checkIfUserExists(req.body.registerEmail)) {
         res.redirect("/register");
     }
+
     // Secure the data
     let data = {
         name: req.body.signupName,
-        email: req.body.signupEmail,
-        password: req.body.signupPasskey,
+        email: req.body.signupEmail.toLowerCase(),
+        password: await encryptPassword(req.body.signupPasskey),
         telno: req.body.signupTelno,
         dateRegistered: new Date(),
         bitcoinAddress: "",
@@ -187,18 +134,30 @@ exports.postRegisterPage = function(req, res, next) {
         lastLoggedInIP: getUsersIP(),
     };
     // Send to the database
-    const result = createNewUser(data);
-    if (result) {
-        res.redirect("/");
-    } else {
-        res.redirect("/register");
-    }
+    (await createNewUser(data)) ? res.redirect("/"): res.redirect("/register");
 };
 
 exports.getLoginPage = function(req, res, next) {
     if (req.cookies.userLoggedIn) {
         res.redirect("/");
     }
+    let error = req.query.error == "true" ? true : false;
+
+    if (error) {
+        let emailAddress = sessionStorage.getItem("loginEmailAddress");
+        res.render("login", {
+            title: "Login",
+            head: headData,
+            nav: primaryNavItems,
+            secondaryNav: secondaryNavItems,
+            footer: {
+                currentYear: YEAR,
+            },
+            error: error,
+            emailAddress: emailAddress,
+        });
+    }
+
     res.render("login", {
         title: "Login",
         head: headData,
@@ -207,76 +166,49 @@ exports.getLoginPage = function(req, res, next) {
         footer: {
             currentYear: YEAR,
         },
-        message: "",
+        error: false,
     });
 };
-
-async function findUserByEmailAndPassword(collection, emailAddress, password) {
-    return collection.findOne({ email: emailAddress, password: password });
-}
 
 // function registerLastLogin(collection, emailAddress) {
 //     collection.updateOne({ email: emailAddress }, { $set: { lastLoggedInTime: new Date(), lastLoggedInIP: getUsersIP() } });
 // }
 
-async function authenticateUser(data) {
-    let mongoClient;
-    try {
-        mongoClient = await connectToCluster(uri);
-        const db = mongoClient.db("mineOn");
-        const collection = db.collection("Clients");
-        // Get the documents collection where the name is equal to data.name
-        const result = await findUserByEmailAndPassword(
-            collection,
-            data.email,
-            data.password
-        );
-        // If the result is not null, then the user exists, set cookie and redirect to homepage
-        if (result !== null && result.deletedAccount === false) {
-            // Create a cookie with the user's name
-            //registerLastLogin(collection, result.email);
-            return result;
-        } else {
-            return null;
-        }
-    } catch (error) {
-        console.error("Connection to MongoDB Atlas failed!", error);
-        process.exit();
-    } finally {
-        await mongoClient.close();
-    }
-}
-
-function secureData(data) {
-    const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    const passwordPattern =
-        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
-    return data.email.match(emailPattern) && data.password.match(passwordPattern);
-}
-
 exports.postLoginPage = async function(req, res, next) {
-    const data = {
-        email: req.body.loginEmail,
+    if (req.cookies.userLoggedIn) {
+        res.redirect("/");
+    }
+    let data = {
+        email: req.body.loginEmail.toLowerCase(),
         password: req.body.loginPasskey,
     };
-    if (!secureData(data)) {
-        res.redirect("/login");
-    }
-    let result = await authenticateUser(data);
-    if (result !== null) {
-        // Create a cookie with the user's name
-        let time = req.body.rememberMe ? 3600000 * 24 * 7 * 52 : 360000;
-        res.cookie(
-            "userLoggedIn", { id: result._id, name: result.name }, { maxAge: time }
-        );
-        res.redirect("/");
+
+    if (Form.isLoginFormValid(data.email, data.password)) {
+        const result = await db.find(Clients, { email: data.email });
+        if (result !== null) {
+            if (!(await bcryptjs.compare(data.password, result.password))) {
+                sessionStorage.setItem("loginEmailAddress", data.email);
+                res.redirect("/login?error=true");
+            }
+            // if remember me is checked, set cookie for 30 days otherwise 1 day
+
+            let time = req.body.rememberMe ? 1000 * (36000 * 24) : 36000 * 24;
+            // Set the cookie
+            res.cookie(
+                "userLoggedIn", { name: result.name, id: result._id }, { maxAge: time, httpOnly: true }
+            );
+            res.redirect("/");
+        } else {
+            sessionStorage.setItem("loginEmailAddress", data.email);
+            res.redirect("/login?error=true");
+        }
     } else {
-        res.redirect("/login");
+        // Redirect to login with get request with error set to true
+        res.redirect("/login?error=true");
     }
-    res.end();
 };
 
-exports.getAboutPage = function(req, res, next) {
+exports.getAboutPage = async function(req, res, next) {
     changeMenuItems(req);
     res.render("about", {
         title: "About",
@@ -289,33 +221,20 @@ exports.getAboutPage = function(req, res, next) {
     });
 };
 
-async function getUsersEmailAddress(userName) {
-    let mongoClient;
-    try {
-        mongoClient = await connectToCluster(uri);
-        const db = mongoClient.db("mineOn");
-        const collection = db.collection("Clients");
-        // Get the documents collection where the name is equal to data.name
-
-        const result = await collection.findOne({ name: userName });
-
-        // If the result is not null, then the user exists, set cookie and redirect to homepage
-        if (result !== null) {
-            return result;
-        } else {
-            return null;
-        }
-    } catch (error) {
-        console.error("Connection to MongoDB Atlas failed!", error);
-        process.exit();
-    } finally {
-        await mongoClient.close();
-    }
-}
-
 exports.getContactPage = async function(req, res, next) {
+    let result;
     changeMenuItems(req);
-    const result = await getUsersEmailAddress(req.cookies.userLoggedIn.name);
+    if (req.cookies.userLoggedIn) {
+        result = await db.findById(Clients, req.cookies.userLoggedIn.id);
+    }
+    let message = "";
+    if (req.query.error == "true") {
+        message = "Something went wrong, please try again";
+    } else if (req.query.success == "true") {
+        message =
+            "Your message has been sent, we will get back to you as soon as possible";
+    }
+
     res.render("contact", {
         title: "Contact",
         head: headData,
@@ -324,44 +243,12 @@ exports.getContactPage = async function(req, res, next) {
         footer: {
             currentYear: YEAR,
         },
-        name: result.name,
-        telno: result.telno,
-        emailAddress: result.email,
+        name: result ? result.name.replace(/\s/g, "") : "",
+        email: result ? result.email.replace(/\s/g, "") : "",
+        telno: result ? result.telno.replace(/\s/g, "") : "",
+        message: message,
     });
 };
-
-async function registerContact(data) {
-    let mongoClient;
-    try {
-        mongoClient = await connectToCluster(uri);
-        const db = mongoClient.db("mineOn");
-        const collection = db.collection("Contacts");
-        // Get the documents collection where the name is equal to data.name
-        const result = await collection.insertOne(data);
-        // If the result is not null, then the user exists, set cookie and redirect to homepage
-        if (result !== null) {
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.error("Connection to MongoDB Atlas failed!", error);
-        process.exit();
-    } finally {
-        await mongoClient.close();
-    }
-}
-
-function secureContactData(data) {
-    const namePattern = /^[a-zA-Z ]+$/;
-    const telnoPattern = /^[0-9]{10}$/;
-    const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    return (
-        data.name.match(namePattern) &&
-        data.telno.match(telnoPattern) &&
-        data.email.match(emailPattern)
-    );
-}
 
 exports.postContactPage = async function(req, res, next) {
     changeMenuItems(req);
@@ -374,12 +261,28 @@ exports.postContactPage = async function(req, res, next) {
         registeredTime: new Date(),
         registeredIP: getUsersIP(),
     };
-    console.log(data);
-    if (!secureContactData(data)) {
-        res.redirect("/contact");
+    if (
+        Form.isContactFormValid(
+            data.name,
+            data.email,
+            data.telno,
+            data.subject,
+            data.message
+        )
+    ) {
+        const isRegistered = db.insert(Contacts, data);
+        if (isRegistered) {
+            let newEmail = new Email(data.email, data.subject, data.message, "");
+            await newEmail.send();
+        } else {
+            res.redirect("/contact?error=true");
+        }
+
+        res.redirect("/contact?success=true");
+    } else {
+        res.redirect("/contact?error=true");
     }
-    registerContact(data);
-    res.redirect("/contact");
+
     // Send to the database
 };
 

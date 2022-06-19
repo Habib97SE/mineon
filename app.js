@@ -71,4 +71,3 @@ async function executeStudentCrudOperations() {
 
 app.use(frontRoutes);
 app.listen(PORT);
-console.log("Click here to run the app: localhost:" + PORT);

@@ -338,6 +338,12 @@ function isEmailAddressValid(emailAddress) {
     return pattern.test(emailAddress);
 }
 
+function isPasswordValid(password) {
+    var pattern =
+        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+    return new RegExp(pattern).test(password);
+}
+
 /**
  * Create a new tag and return it
  * @param {string} text : the text of the tag
@@ -438,9 +444,7 @@ signupTelephone.addEventListener("focusout", function(e) {
 // control password field
 const signupPassword = document.querySelector("input[name='signupPasskey']");
 signupPassword.addEventListener("focusout", function(e) {
-    var pattern =
-        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
-    if (signupPassword.value.match(pattern)) {
+    if (isPasswordValid(signupPassword.value)) {
         signupPassword.style.borderColor = "green";
         if (checkNextTag("LABEL", signupPassword)) {
             signupPassword.parentNode.removeChild(signupPassword.nextSibling);
@@ -554,16 +558,20 @@ function showPassword() {
  */
 let loginError = false;
 const loginEmail = document.querySelector("input[name='loginEmail']");
+loginEmail.addEventListener("click", function(e) {
+    alert("Please enter your email address.");
+});
 loginEmail.addEventListener("focusout", function(e) {
-    if (isEmailAddressValid(loginEmail.value)) {
+    alert(loginEmail.value);
+    if (loginEmail.value.length >= 3) {
         loginEmail.style.borderColor = "green";
         if (checkNextTag("LABEL", loginEmail)) {
             loginEmail.parentNode.removeChild(loginEmail.nextSibling);
         }
     } else {
+        loginEmail.style.borderColor = "red";
+        const label = createLabel("The email is not valid.", "login-email");
         if (!checkNextTag("LABEL", loginEmail)) {
-            loginEmail.style.borderColor = "red";
-            const label = createLabel("Please enter your email.", "login-email");
             loginEmail.parentNode.insertBefore(label, loginEmail.nextSibling);
         }
         loginError = true;
@@ -573,9 +581,7 @@ loginEmail.addEventListener("focusout", function(e) {
 const loginPasskey = document.querySelector("input[name='loginPasskey']");
 loginPasskey.addEventListener("focusout", function(e) {
     if (loginPasskey.value.length >= 3) {
-        var pattern =
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
-        if (loginPasskey.value.match(pattern)) {
+        if (isPasswordValid(loginPasskey.value)) {
             loginPasskey.style.borderColor = "green";
             if (checkNextTag("LABEL", loginPasskey)) {
                 loginPasskey.parentNode.removeChild(loginPasskey.nextSibling);
@@ -596,7 +602,7 @@ loginSubmit.addEventListener("click", function(e) {
     if (!loginError) {
         if (loginEmail.value >= 3 && loginPasskey.value >= 3) {
             const rememberMe = document.querySelector("input[name='rememberMe']");
-            loginForm.submit();
+            loginForm.submt();
         }
     } else {
         e.preventDefault();

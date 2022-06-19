@@ -14,28 +14,42 @@
                 <div class="row">
                     <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                         <h3 class="heading-lead center">Login Your Account</h3>
+
                         <form class="form-signup" action="/login" method="post">
                             <div class="form-results"></div>
                             <div class="form-group">
                                 <div class="form-field form-m-bttm">
-                                    <input name="loginEmail" type="email" placeholder="Email *" class="form-control required email" aria-required="true">
+                                    <input name="loginEmail" type="email" placeholder="Email *" value="test@test.se" class="form-control required email" aria-required="true">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="form-field">
-                                    <input name="loginPasskey" type="password" placeholder="Password *" class="form-control required" aria-required="true">
+                                    <input name="loginPasskey" type="password" placeholder="Password *" value="1q2w3a$S" class="form-control required" aria-required="true">
                                 </div>
                             </div>
+                            <p class="small">
+                                <a class="switch-tab" href="/register">Forgot password?</a>
+                            </p>
                             <br>
-                            <div class="form-group">
-                                <div class="form-field">
-                                    <input type="checkbox" name="rememberMe"> <span> Remember me?</span>
-                                </div>
-                            </div>
-                            <input type="submit" id="loginSubmit" class="btn btn-alt" value="Log In" />
-                            <span class="gaps"></span>
-                            <p class="small">Not registered? <a class="switch-tab" href="/register">Register
-                                    here</a></p>
+
+                            <% if(error===true) { %>
+                                <p class="text-danger"> Invalid E-mail or password, please check and try again. </p>
+                                <% } else{ %>
+                                    <p></p>
+                                    <% } %>
+
+                                        <div class="form-group">
+                                            <div class="form-field">
+                                                <input type="checkbox" name="rememberMe"> <span> Remember me?</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                        </div>
+                                        <input type="submit" id="loginSubmit" class="btn btn-alt" value="Log In" />
+                                        <span class="gaps"></span>
+                                        <p class="small">Not registered? <a class="switch-tab" href="/register">Register
+                                                here</a></p>
+
                         </form>
                     </div>
                 </div>
