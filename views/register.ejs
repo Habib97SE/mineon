@@ -30,24 +30,30 @@
                                         <div class="form-results"></div>
                                         <div class="form-group">
                                             <div class="form-field form-m-bttm">
-                                                <input name="signupName" id="signup-name" type="text" placeholder="Name *" class="form-control required" aria-required="true">
+                                                <input name="signupName" id="signup-name" type="text" value="<%= data.name %>" placeholder="Name *" class="form-control required" aria-required="true">
                                             </div>
                                         </div>
 
                                         <div class="form-group">
                                             <div class="form-field form-m-bttm">
-                                                <input name="signupEmail" id="signup-email" type="email" placeholder="Email *" class="form-control required email" aria-required="true">
+                                                <input name="signupEmail" id="signup-email" type="email" value="<%= data.email %> " placeholder="Email *" class="form-control required email" aria-required="true">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="form-field form-m-bttm">
-                                                <input name="signupTelno" id="signup-telno" type="tel" placeholder="Telephone Number *" class="form-control required" aria-required="true">
+                                                <input name="signupTelno" id="signup-telno" type="tel" value="<%= data.telno %>" placeholder="Telephone Number *" class="form-control required" aria-required="true">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="form-field">
                                                 <input name="signupPasskey" id="signup-passkey" type="password" placeholder="Password *" class="form-control required" aria-required="true">
-                                                <label for="signup-passkey" onclick="showPassword()" id="signupShowPassword">Show</label>
+                                                <br />
+                                                <input type="checkbox" onclick="showPassword()"> Show password
+                                                <ul>
+                                                    <li>At least 8 characters</li>
+                                                    <li>At least one number</li>
+                                                    <li>At least one special character</li>
+                                                </ul>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -63,22 +69,27 @@
                                                     the terms of the <a href="#">User Agreement</a>.</span>
                                             </div>
                                         </div>
-
-                                        <input type="submit" class="btn btn-alt" name="signupSubmit" value="Sign up" />
-                                        <span class="gaps"></span>
-                                        <p class="small">Already registered? <a class="switch-tab" data-tabnav="loginreg-form" href="#tab1" data-toggle="tab">Login
-                                                here</a>
-                                        </p>
+                                        <div class="form-group">
+                                            <div class="form-field">
+                                                <p class="text-danger">
+                                                    <%= message %>
+                                                </p>
+                                            </div>
+                                            <input type="submit" class="btn btn-alt" name="signupSubmit" value="Sign up" />
+                                            <span class="gaps"></span>
+                                            <p class="small">Already registered? <a class="switch-tab" data-tabnav="loginreg-form" href="#tab1" data-toggle="tab">Login
+                                                    here</a>
+                                            </p>
                                     </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- End Section -->
+                <!-- End Section -->
 
-            <%- include('includes/footer.ejs') -%>
+                <%- include('includes/footer.ejs') -%>
     </body>
 
 </html>

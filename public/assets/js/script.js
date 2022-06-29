@@ -1,4 +1,5 @@
 /* Template	:	CryptoCoin v1.0.0 */
+
 (function($) {
     "use strict";
     var $win = $(window),
@@ -615,3 +616,5 @@ loginSubmit.addEventListener("click", function(e) {
         }
     }
 }); // end loginSubmit.addEventListener
+
+//read the config file and display it

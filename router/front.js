@@ -31,4 +31,8 @@ router.get("/contact", frontController.getContactPage);
 // POST Contact page
 router.post("/contact", frontController.postContactPage);
 
+router.get("/test", frontController.getTestPage);
+
+router.get("/blog", frontController.getBlogPage);
+
 module.exports = router;

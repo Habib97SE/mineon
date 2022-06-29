@@ -1,18 +1,17 @@
-const express = require("express");
-
 const YEAR = new Date().getFullYear();
-
 const { networkInterfaces } = require("os");
 const bcryptjs = require("bcryptjs");
-const e = require("express");
 const Email = require("../model/Email");
 const Form = require("../model/Form");
 const Database = require("../model/Database");
 
 const Clients = "Clients";
 const Contacts = "Contacts";
+const Blogs = "Blogs";
 
 let db = new Database();
+let newForm = new Form();
+let newEmail = new Email();
 
 async function encryptPassword(password) {
     const salt = await bcryptjs.genSalt(12);
@@ -62,15 +61,24 @@ function getUsersIP() {
 function changeMenuItems(req) {
     // Check if the user is logged in
     if (req.cookies.userLoggedIn) {
+        let error = { login: true, register: true };
         for (let i = 0; i < secondaryNavItems.length; i++) {
             if (secondaryNavItems[i][0] === "Login") {
                 secondaryNavItems[i][0] = req.cookies.userLoggedIn.name;
                 secondaryNavItems[i][1] = "/account";
+                error.login = false;
             }
             if (secondaryNavItems[i][0] === "Register") {
                 secondaryNavItems[i][0] = "Logout";
                 secondaryNavItems[i][1] = "/logout";
+                error.register = false;
             }
+        }
+        if (error.login) {
+            secondaryNavItems.push([req.cookies.userLoggedIn.name, "/account"]);
+        }
+        if (error.register) {
+            secondaryNavItems.push(["Logout", "/logout"]);
         }
     }
 }
@@ -89,8 +97,20 @@ exports.getHomePage = function(req, res, next) {
 };
 
 exports.getRegisterPage = function(req, res, next) {
+    let data = {
+        name: "",
+        email: "",
+        telno: "",
+    };
     if (req.cookies.userLoggedIn) {
         res.redirect("/");
+    }
+    let message = "";
+    if (req.query.error == "true") {
+        message = req.cookies.errorMessage.message;
+        data.name = req.cookies.errorMessage.name;
+        data.email = req.cookies.errorMessage.email;
+        data.telno = req.cookies.errorMessage.telno;
     }
     changeMenuItems(req);
     res.render("register", {
@@ -101,40 +121,96 @@ exports.getRegisterPage = function(req, res, next) {
         footer: {
             currentYear: YEAR,
         },
+        message: message,
+        data: {
+            name: data.name,
+            email: data.email,
+            telno: data.telno,
+        },
     });
 };
 
 exports.postRegisterPage = async function(req, res, next) {
-    let newForm = new Form(
-        req.body.name,
-        req.body.email,
-        req.body.telno,
-        req.body.password,
-        req.body.confirmPassword
-    );
-    if (!newForm.isFormValid()) {
-        res.redirect("/register");
-    }
-
-    if (checkIfUserExists(req.body.registerEmail)) {
-        res.redirect("/register");
-    }
-
-    // Secure the data
-    let data = {
+    let formData = {
         name: req.body.signupName,
         email: req.body.signupEmail.toLowerCase(),
-        password: await encryptPassword(req.body.signupPasskey),
+        password: req.body.signupPasskey,
+        confirmPassword: req.body.signupPasskeyConfirm,
         telno: req.body.signupTelno,
-        dateRegistered: new Date(),
-        bitcoinAddress: "",
-        newsletterSubscribed: true,
-        deletedAccount: false,
-        lastLoggedInTime: null,
-        lastLoggedInIP: getUsersIP(),
     };
+    let formIsValid = newForm.isRegistrationValid(
+        formData.name,
+        formData.email,
+        formData.telno,
+        formData.password,
+        formData.confirmPassword
+    );
+    if (!formIsValid) {
+        // Load getRegisterPage
+        res.cookie("errorMessage", {
+            message: "Please fill in all fields",
+            name: formData.name,
+            email: formData.email,
+            telno: formData.telno,
+        });
+        res.redirect("/register?error=true");
+    }
+
+    // Check if the email address is already in use, if yes then load getRegisterPage
+    let emailInUse = await db.isEmailInUse(Clients, formData.email);
+    // if emailInUse is not false then redirect to register page with error
+    if (emailInUse) {
+        //set session with error message
+        res.cookie("errorMessage", {
+            message: "Email address already in use",
+            name: formData.name,
+            email: formData.email,
+            telno: formData.telno,
+        });
+        res.redirect("register?error=true");
+    }
+    formData.dateRegistered = new Date();
+    formData.bitcoinAddress = "";
+    formData.newsletterSubscribed = true;
+    formData.deletedAccount = false;
+    formData.lastLoggedInIP = getUsersIP();
+    formData.lastLoggedInTime = null;
     // Send to the database
-    (await createNewUser(data)) ? res.redirect("/"): res.redirect("/register");
+    let result = db.insert(Clients, formData);
+    if (!result) {
+        //set session with error message
+        res.cookie("errorMessage", {
+            message: "Error registering account",
+            name: formData.name,
+            email: formData.email,
+            telno: formData.telno,
+        });
+        res.redirect("register?error=true");
+    }
+    // If inserted successfully, send email: welcome email
+    if (result) {
+        //  remove cookie errorMessage if there is any
+        res.clearCookie("errorMessage");
+        newEmail.setSender("info@nuvane.se");
+        newEmail.setReceiver(formData.email);
+        newEmail.setSubject("Nuvane - Account Created");
+        newEmail.setMessage(
+            "Hello " +
+            formData.name +
+            ",\n\n" +
+            "Your account has been created.\n\n" +
+            "You can now login to your account at https://nuvane.se/login\n\n" +
+            "Regards,\n" +
+            "Nuvane Team"
+        );
+        // let emailResult = newEmail.send();
+        // if (emailResult) {
+        //     res.redirect("login");
+        // } else {
+        //     res.redirect("register");
+        // }
+        console.log("Email sent");
+    }
 };
 
 exports.getLoginPage = function(req, res, next) {
@@ -144,7 +220,7 @@ exports.getLoginPage = function(req, res, next) {
     let error = req.query.error == "true" ? true : false;
 
     if (error) {
-        let emailAddress = sessionStorage.getItem("loginEmailAddress");
+        let emailAddress = req.cookies.loginFailed.email;
         res.render("login", {
             title: "Login",
             head: headData,
@@ -183,19 +259,25 @@ exports.postLoginPage = async function(req, res, next) {
         password: req.body.loginPasskey,
     };
 
-    if (Form.isLoginFormValid(data.email, data.password)) {
+    let formIsValid = newForm.isLoginValid(data.email, data.password);
+
+    if (!formIsValid) {
         const result = await db.find(Clients, { email: data.email });
         if (result !== null) {
             if (!(await bcryptjs.compare(data.password, result.password))) {
-                sessionStorage.setItem("loginEmailAddress", data.email);
+                res.cookie(
+                    "loginFailed", { status: true, email: data.email }, { maxAge: 100000 }
+                );
                 res.redirect("/login?error=true");
             }
             // if remember me is checked, set cookie for 30 days otherwise 1 day
 
-            let time = req.body.rememberMe ? 1000 * (36000 * 24) : 36000 * 24;
+            let cookieLifeTime = req.body.rememberMe ?
+                1000 * (36000 * 24) :
+                36000 * 24;
             // Set the cookie
             res.cookie(
-                "userLoggedIn", { name: result.name, id: result._id }, { maxAge: time, httpOnly: true }
+                "userLoggedIn", { name: result.name, id: result._id }, { maxAge: cookieLifeTime, httpOnly: true }
             );
             res.redirect("/");
         } else {
@@ -228,11 +310,16 @@ exports.getContactPage = async function(req, res, next) {
         result = await db.findById(Clients, req.cookies.userLoggedIn.id);
     }
     let message = "";
-    if (req.query.error == "true") {
-        message = "Something went wrong, please try again";
-    } else if (req.query.success == "true") {
-        message =
-            "Your message has been sent, we will get back to you as soon as possible";
+    // emailStatus: 0 = email not sent because of error, 1 = email sent, 2 = contact form has not submitted yet
+    let emailStatus = 2;
+    if ((req.query.error = "true")) {
+        emailStatus = 0;
+        message = "Please fill in all fields";
+    }
+
+    if ((req.query.success = "true")) {
+        emailStatus = 1;
+        message = "Message sent";
     }
 
     res.render("contact", {
@@ -246,6 +333,7 @@ exports.getContactPage = async function(req, res, next) {
         name: result ? result.name.replace(/\s/g, "") : "",
         email: result ? result.email.replace(/\s/g, "") : "",
         telno: result ? result.telno.replace(/\s/g, "") : "",
+        emailStatus: emailStatus,
         message: message,
     });
 };
@@ -261,19 +349,26 @@ exports.postContactPage = async function(req, res, next) {
         registeredTime: new Date(),
         registeredIP: getUsersIP(),
     };
-    if (
-        Form.isContactFormValid(
-            data.name,
-            data.email,
-            data.telno,
-            data.subject,
-            data.message
-        )
-    ) {
+    let isFormValid = newForm.isContactFormValid(
+        data.name,
+        data.email,
+        data.telno,
+        data.subject,
+        data.message
+    );
+    if (isFormValid) {
         const isRegistered = db.insert(Contacts, data);
         if (isRegistered) {
-            let newEmail = new Email(data.email, data.subject, data.message, "");
-            await newEmail.send();
+            newEmail.setMessage(data.message);
+            newEmail.setSender(data.email);
+            newEmail.setRecipient("info@nuvane.se");
+            newEmail.setSubject(data.subject);
+            let emailResult = newEmail.send();
+            if (emailResult) {
+                res.redirect("/contact?success=true");
+            } else {
+                res.redirect("/contact?error=true");
+            }
         } else {
             res.redirect("/contact?error=true");
         }
@@ -286,7 +381,25 @@ exports.postContactPage = async function(req, res, next) {
     // Send to the database
 };
 
+exports.getBlogPage = async function(req, res, next) {
+    changeMenuItems(req);
+    let blogPosts = await db.find(Blogs, {});
+    res.render("blog", {
+        title: "Blog",
+        head: headData,
+        nav: primaryNavItems,
+        secondaryNav: secondaryNavItems,
+        blogPosts: blogPosts,
+        footer: {
+            currentYear: YEAR,
+        },
+    });
+};
 exports.getLogoutPage = function(req, res, next) {
     res.clearCookie("userLoggedIn");
     res.redirect("/");
+};
+
+exports.getTestPage = async function(req, res, next) {
+    res.render("test");
 };
