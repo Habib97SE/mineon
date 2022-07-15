@@ -32,5 +32,10 @@
     "bugs": {
         "url": "https://github.com/Habib97SE/mineon/issues"
     },
+    {
+  "scripts": {
+    "build": "npm run build"
+             }
+    },
     "homepage": "https://github.com/Habib97SE/mineon#readme"
 }
